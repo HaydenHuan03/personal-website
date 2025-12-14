@@ -1,2 +1,0 @@
-# Cloudflare Workers automatically handles SPA routing
-# No redirects needed - if no 404.html exists, index.html is served for all routes
