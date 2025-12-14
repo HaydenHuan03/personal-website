@@ -10,6 +10,3 @@ cwd = "."
 # Static assets directory
 [assets]
 directory = "./frontend/dist"
-
-# Note: Headers and redirects are configured via _headers and _redirects files
-# in the frontend/public directory, which are copied to the dist folder during build
