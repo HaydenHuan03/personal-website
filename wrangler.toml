@@ -10,3 +10,8 @@ cwd = "."
 # Static assets directory
 [assets]
 directory = "./frontend/dist"
+
+# Custom domain routes
+routes = [
+  { pattern = "haydenhuan.com/*", custom_domain = true },
+]
