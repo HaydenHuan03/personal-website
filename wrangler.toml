@@ -1,0 +1,30 @@
+# Cloudflare Pages Configuration
+# This file is optional but can be used for advanced configurations
+
+name = "haydenhuan-com"
+compatibility_date = "2024-12-14"
+
+# Pages configuration
+[site]
+bucket = "./frontend/dist"
+
+# Custom headers (optional)
+[[headers]]
+for = "/*"
+[headers.values]
+X-Frame-Options = "DENY"
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+
+# Cache static assets
+[[headers]]
+for = "/assets/*"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+# SPA fallback - redirect all routes to index.html
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
