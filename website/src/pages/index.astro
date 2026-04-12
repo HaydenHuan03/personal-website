@@ -1,0 +1,20 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import HeroSection from '../components/HeroSection.astro';
+import SkillsSection from '../components/SkillsSection.astro';
+import ProjectsSection from '../components/ProjectsSection.astro';
+import JourneySection from '../components/JourneySection.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout>
+  <Navbar />
+  <main class="max-w-5xl mx-auto px-6 md:px-12 pb-24">
+    <HeroSection />
+    <SkillsSection />
+    <ProjectsSection />
+    <JourneySection />
+  </main>
+  <Footer />
+</Layout>

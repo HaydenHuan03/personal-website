@@ -1,0 +1,55 @@
+---
+import Icon from './Icon.astro';
+---
+
+<section id="about" class="pt-20 pb-32 md:pt-32 md:pb-40 flex flex-col md:flex-row items-center gap-12 md:gap-16">
+  <!-- Left: intro text -->
+  <div class="flex-1 min-w-0">
+    <p class="text-stone-500 font-medium tracking-wide text-sm uppercase mb-4">
+      Software Engineer
+    </p>
+    <h1 class="text-5xl md:text-6xl font-heading font-semibold tracking-tight text-stone-900 mb-6 leading-[1.1]">
+      Hayden Huan Kee Jiun.
+    </h1>
+    <h2 class="text-xl md:text-2xl text-stone-600 font-medium mb-8">
+      Backend Engineer & Infrastructure Developer.
+    </h2>
+    <p class="text-lg text-stone-600 leading-relaxed font-light mb-10">
+      I specialize in architecting scalable APIs, event-driven data pipelines, and robust Kubernetes deployments. Currently focused on bridging the gap between heavy backend logic and seamless infrastructure.
+    </p>
+
+    <div class="flex flex-wrap gap-4">
+      <a
+        href="#projects"
+        class="flex items-center gap-2 px-6 py-3 bg-stone-900 text-stone-50 rounded-md hover:bg-stone-800 transition-colors font-medium text-sm"
+      >
+        View Projects <Icon name="arrow-right" size={16} />
+      </a>
+      <a
+        href="mailto:contact@example.com"
+        class="flex items-center gap-2 px-6 py-3 border border-stone-300 rounded-md hover:bg-stone-200 transition-colors font-medium text-sm text-stone-900"
+      >
+        <Icon name="mail" size={16} /> Contact Me
+      </a>
+      <div class="flex items-center gap-3 ml-2 border-l border-stone-300 pl-6">
+        <a href="#" class="text-stone-500 hover:text-stone-900 transition-colors">
+          <Icon name="github" size={20} />
+        </a>
+        <a href="#" class="text-stone-500 hover:text-stone-900 transition-colors">
+          <Icon name="linkedin" size={20} />
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: large photo -->
+  <div class="w-full md:w-[420px] md:flex-shrink-0 relative">
+    <div class="absolute inset-0 bg-stone-200 rounded-3xl transform rotate-2 scale-[1.03] -z-10"></div>
+    <!-- Replace src with your actual profile picture -->
+    <img
+      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80"
+      alt="Hayden Huan Kee Jiun"
+      class="w-full aspect-[3/4] object-cover rounded-3xl border-4 border-stone-50 shadow-md"
+    />
+  </div>
+</section>

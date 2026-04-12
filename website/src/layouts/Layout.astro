@@ -1,0 +1,144 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+
+interface Props {
+  title?: string;
+}
+
+const { title = 'Hayden Huan — Backend Engineer & Infrastructure Developer' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <ClientRouter />
+    <title>{title}</title>
+  </head>
+  <body class="bg-stone-50 text-stone-900 font-sans antialiased selection:bg-stone-300 selection:text-stone-900">
+    <canvas
+      id="dot-grid"
+      aria-hidden="true"
+      style="position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;"
+    ></canvas>
+    <div style="position:relative;z-index:1;">
+      <slot />
+    </div>
+    <script>
+      (function () {
+        const SPACING = 34;
+        const BASE_RADIUS = 1.15;
+        const MOUSE_RADIUS = 160;
+        const WAVE_SPEED = 0.007;
+        const DOT_COLOR = '120,113,108'; // stone-500
+
+        let mouse = { x: -9999, y: -9999 };
+        let dots: { x: number; y: number; phase: number }[] = [];
+        let animId = 0;
+        let t = 0;
+        let w = 0;
+        let h = 0;
+        let canvas: HTMLCanvasElement | null = null;
+        let ctx: CanvasRenderingContext2D | null = null;
+
+        function buildDots() {
+          if (!canvas) return;
+          w = canvas.width = window.innerWidth;
+          h = canvas.height = window.innerHeight;
+          dots = [];
+          const cols = Math.ceil(w / SPACING) + 1;
+          const rows = Math.ceil(h / SPACING) + 1;
+          const offX = (w % SPACING) / 2;
+          const offY = (h % SPACING) / 2;
+          for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+              dots.push({
+                x: offX + c * SPACING,
+                y: offY + r * SPACING,
+                phase: (r * 0.65 + c * 0.45) * 0.38,
+              });
+            }
+          }
+        }
+
+        function draw() {
+          if (!ctx || !canvas) return;
+          ctx.clearRect(0, 0, w, h);
+          t += WAVE_SPEED;
+
+          for (const dot of dots) {
+            const dx = dot.x - mouse.x;
+            const dy = dot.y - mouse.y;
+            const distSq = dx * dx + dy * dy;
+            const dist = Math.sqrt(distSq);
+            const influence = Math.max(0, 1 - dist / MOUSE_RADIUS);
+            const smoothInfluence = influence * influence * (3 - 2 * influence); // smoothstep
+
+            // Wave breathe: slow ripple across the grid
+            const wave = Math.sin(t * 2.2 + dot.phase);
+            const breathe = (wave + 1) * 0.5; // [0, 1]
+
+            // Radius grows with wave and mouse proximity
+            const radius = BASE_RADIUS * (0.65 + 0.55 * breathe + smoothInfluence * 2.4);
+
+            // Dots gently push away from cursor
+            const pushMag = smoothInfluence * 5.5;
+            const px = dist > 0 ? (dx / dist) * pushMag : 0;
+            const py = dist > 0 ? (dy / dist) * pushMag : 0;
+
+            // Opacity: dim at rest, brighter with wave peak and proximity
+            const opacity = 0.16 + 0.2 * breathe + smoothInfluence * 0.48;
+
+            ctx.beginPath();
+            ctx.arc(dot.x + px, dot.y + py, radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${DOT_COLOR},${opacity.toFixed(3)})`;
+            ctx.fill();
+          }
+
+          animId = requestAnimationFrame(draw);
+        }
+
+        function setup() {
+          if (animId) cancelAnimationFrame(animId);
+          canvas = document.getElementById('dot-grid') as HTMLCanvasElement | null;
+          if (!canvas) return;
+          ctx = canvas.getContext('2d');
+          buildDots();
+          draw();
+        }
+
+        function onResize() {
+          buildDots();
+        }
+
+        function onMouseMove(e: MouseEvent) {
+          mouse.x = e.clientX;
+          mouse.y = e.clientY;
+        }
+
+        function onMouseLeave() {
+          mouse.x = -9999;
+          mouse.y = -9999;
+        }
+
+        window.addEventListener('resize', onResize);
+        window.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseleave', onMouseLeave);
+
+        // Astro ClientRouter fires astro:page-load on every navigation incl. initial
+        document.addEventListener('astro:page-load', setup);
+      })();
+    </script>
+  </body>
+</html>
