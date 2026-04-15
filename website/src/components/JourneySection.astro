@@ -55,17 +55,21 @@ const experiences = [
 
 
 <script>
-  const items = document.querySelectorAll('[data-orbit]');
-  const io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          e.target.classList.add('revealed');
-          io.unobserve(e.target);
-        }
-      });
-    },
-    { threshold: 0.2 }
-  );
-  items.forEach((el) => io.observe(el));
+  function initOrbit() {
+    const items = document.querySelectorAll('[data-orbit]');
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('revealed');
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+    items.forEach((el) => io.observe(el));
+  }
+
+  document.addEventListener('astro:page-load', initOrbit);
 </script>
