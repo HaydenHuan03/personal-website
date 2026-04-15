@@ -1,2 +1,4 @@
-name = "personal-website"
+[pages]
+project_name = "personal-website"
+
 pages_build_output_dir = "dist"
