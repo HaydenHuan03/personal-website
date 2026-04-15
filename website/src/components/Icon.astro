@@ -10,7 +10,8 @@ interface Props {
     | 'share2'
     | 'arrow-right'
     | 'arrow-left'
-    | 'external-link';
+    | 'external-link'
+    | 'instagram';
   size?: number;
   class?: string;
 }
@@ -28,6 +29,7 @@ const paths: Record<string, string> = {
   'arrow-right': `<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>`,
   'arrow-left': `<path d="m19 12-14 0"/><path d="m12 19-7-7 7-7"/>`,
   'external-link': `<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>`,
+  instagram: `<rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>`,
 };
 ---
 
