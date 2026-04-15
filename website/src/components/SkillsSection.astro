@@ -1,33 +1,34 @@
 ---
 import Icon from './Icon.astro';
 import SectionHeader from './SectionHeader.astro';
+import { techIconMap } from '../utils/techIcons';
 
 const categories = [
   {
     title: 'Backend & APIs',
     icon: 'server' as const,
-    skills: ['Java (Spring Boot)', 'Kotlin', 'Python', 'FastAPI', 'REST & gRPC'],
+    skills: ['Java (Spring Boot)', 'Python', 'FastAPI'],
   },
   {
     title: 'Infrastructure',
     icon: 'layers' as const,
-    skills: ['Kubernetes', 'Docker', 'Nginx', 'Caddy', 'CI/CD Pipelines'],
+    skills: ['Kubernetes', 'Docker', 'Nginx', 'Caddy'],
   },
   {
     title: 'Data & Events',
     icon: 'share2' as const,
-    skills: ['Apache Kafka', 'Apache Airflow', 'Apache Spark', 'Valkey', 'Event-Driven Arch.'],
+    skills: ['Apache Kafka', 'Apache Airflow', 'Apache Spark', 'Valkey'],
   },
   {
     title: 'Databases',
     icon: 'database' as const,
-    skills: ['PostgreSQL', 'MySQL', 'Vector Databases', 'Redis', 'Hybrid SQL'],
+    skills: ['PostgreSQL', 'MySQL', 'Redis', 'Pinecone'],
   },
 ];
 ---
 
 <section id="skills" class="py-24 border-t border-stone-200">
-  <SectionHeader title="The Arsenal" subtitle="Core competencies and technologies." />
+  <SectionHeader title="Tech Skills" subtitle="Core competencies and technologies." />
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
     {categories.map((cat) => (
@@ -39,11 +40,15 @@ const categories = [
           <h3 class="font-heading font-semibold text-lg">{cat.title}</h3>
         </div>
         <div class="flex flex-wrap gap-2">
-          {cat.skills.map((skill) => (
-            <span class="px-3 py-1 bg-stone-100 text-stone-700 text-sm rounded-md font-medium">
-              {skill}
-            </span>
-          ))}
+          {cat.skills.map((skill) => {
+            const iconClass = techIconMap[skill];
+            return (
+              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 text-stone-700 text-sm rounded-md font-medium">
+                {iconClass && <i class={`${iconClass} text-base leading-none`}></i>}
+                {skill}
+              </span>
+            );
+          })}
         </div>
       </div>
     ))}

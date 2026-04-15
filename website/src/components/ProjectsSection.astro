@@ -2,6 +2,7 @@
 import Icon from './Icon.astro';
 import SectionHeader from './SectionHeader.astro';
 import { projects } from '../data/projects';
+import { techIconMap } from '../utils/techIcons';
 ---
 
 <section id="projects" class="py-24 border-t border-stone-200">
@@ -18,11 +19,15 @@ import { projects } from '../data/projects';
             {project.title}
           </h3>
           <div class="flex flex-wrap gap-2 mb-4">
-            {project.tech.map((t) => (
-              <span class="text-xs font-semibold tracking-wide uppercase text-stone-500">
-                {t}
-              </span>
-            ))}
+            {project.tech.map((t) => {
+              const iconClass = techIconMap[t];
+              return (
+                <span class="inline-flex items-center gap-1 px-2 py-1 bg-stone-100 text-stone-600 text-xs font-medium rounded border border-stone-200">
+                  {iconClass && <i class={`${iconClass} text-sm leading-none`}></i>}
+                  {t}
+                </span>
+              );
+            })}
           </div>
         </div>
 

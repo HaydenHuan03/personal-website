@@ -1,6 +1,7 @@
 export interface Project {
   slug: string;
   title: string;
+  inProgress?: boolean;
   description: string;
   tech: string[];
   highlights: string[];
@@ -11,6 +12,7 @@ export const projects: Project[] = [
   {
     slug: 'finguardmy',
     title: 'FinGuardMY',
+    inProgress: true,
     description: 'An AI-powered financial crime analysis platform for Malaysian investigators — combining a real-time RAG chatbot, agentic case report generation, and a knowledge base of AMLA statutes and legal precedents.',
     tech: ['FastAPI', 'Python', 'MySQL', 'Pinecone', 'LangChain', 'Ollama', 'Keycloak', 'Valkey', 'Cloudflare R2', 'Docker'],
     highlights: [
@@ -30,16 +32,17 @@ export const projects: Project[] = [
   {
     slug: 'automated-infrastructure-tooling',
     title: 'Automated Infrastructure Tooling',
-    description: 'Internal tooling to manage server traffic, enforce security rules, and dynamically configure environments.',
+    description: 'A containerised sidecar that fetches routing configuration from a backend API, serialises it to YAML, and drives Nginx through Jinja2 templates — eliminating manual config changes across environments.',
     tech: ['Python', 'Jinja2', 'Nginx', 'Docker'],
     highlights: [
-      'Developed dynamic IP blocking mechanisms to mitigate unwanted traffic.',
-      'Automated Nginx configuration generation using Jinja2 templates, reducing manual deployment errors.',
+      'Built a Python script that polls a backend API for the latest routing rules and serialises the response into a structured YAML configuration file.',
+      'Used Jinja2 to render Nginx .conf files directly from the YAML output, keeping templates declarative and the generated config always in sync with the backend state.',
+      'Packaged the Python script and Nginx together in a single Docker container, so the full fetch-parse-configure cycle runs as one cohesive unit with no external dependencies.',
     ],
     content: [
-      'Managing server traffic rules manually across multiple instances is highly error-prone. I built an internal tool designed to dynamically orchestrate reverse proxy configurations and enforce security protocols without requiring direct SSH access for every change.',
-      'The core engine is written in Python. It listens to a centralized configuration state and uses Jinja2 templates to generate standard Nginx .conf files. Once generated, the tool automatically tests the configuration syntax and reloads the Nginx service gracefully within its Docker container.',
-      'Furthermore, I integrated a dynamic IP blocking mechanism. By parsing access logs in real-time and feeding them into an anomaly detection script, the tool automatically updates blacklists for malicious IPs, acting as a lightweight, automated firewall layer at the proxy level.',
+      'The motivation was simple:  SSHing into servers to deploy the Nginx configs whenever routing rules changed was slow and error-prone. The goal was a self-contained container that could pull its own configuration from a backend API and reconfigure Nginx automatically.',
+      'At startup (and on a polling interval), the Python script calls the backend API to retrieve the current routing and proxy rules. The API response is parsed and written out as a YAML file — a clean, human-readable intermediate representation that decouples the API contract from the template logic.',
+      'Jinja2 then reads the YAML file and renders the final Nginx .conf. This separation means the template can be evolved independently of the fetch logic, and the YAML file doubles as an audit trail of what config was actually applied. Once rendered, the script tests the Nginx configuration syntax and triggers a graceful reload inside the container.',
     ],
   },
 ];

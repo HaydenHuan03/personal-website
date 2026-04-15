@@ -4,6 +4,7 @@ import Navbar from '../../components/Navbar.astro';
 import Icon from '../../components/Icon.astro';
 import Footer from '../../components/Footer.astro';
 import { projects, type Project } from '../../data/projects';
+import { techIconMap } from '../../utils/techIcons';
 
 export function getStaticPaths() {
   return projects.map((project) => ({
@@ -27,19 +28,29 @@ const { project } = Astro.props;
         href="/"
         class="flex items-center gap-2 text-stone-500 hover:text-stone-900 transition-colors mb-12 text-sm font-medium"
       >
-        <Icon name="arrow-left" size={16} /> Back to Home
+        <Icon name="arrow-left" size={16} /> Previous Page
       </a>
 
       <div class="mb-12">
-        <h1 class="text-4xl md:text-5xl font-heading font-semibold text-stone-900 mb-6 leading-[1.1]">
+        <h1 class="text-4xl md:text-5xl font-heading font-semibold text-stone-900 mb-4 leading-[1.1]">
           {project.title}
         </h1>
-        <div class="flex flex-wrap gap-3 mb-8">
-          {project.tech.map((t) => (
-            <span class="px-3 py-1 bg-stone-100 text-stone-700 text-sm rounded-md font-medium border border-stone-200">
-              {t}
-            </span>
-          ))}
+        {project.inProgress && (
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 mb-6 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full border border-amber-200 uppercase tracking-wide">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+            In Progress
+          </span>
+        )}
+        <div class="flex flex-wrap gap-2 mb-8">
+          {project.tech.map((t) => {
+            const iconClass = techIconMap[t];
+            return (
+              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-stone-100 text-stone-700 text-sm rounded-md font-medium border border-stone-200">
+                {iconClass && <i class={`${iconClass} text-base leading-none`}></i>}
+                {t}
+              </span>
+            );
+          })}
         </div>
         <p class="text-xl text-stone-600 font-light leading-relaxed">
           {project.description}
