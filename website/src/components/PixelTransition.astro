@@ -1,0 +1,188 @@
+---
+interface Props {
+  firstImage: string;
+  secondImage: string;
+  gridSize?: number;
+  pixelColor?: string;
+  animationStepDuration?: number;
+  class?: string;
+}
+
+const {
+  firstImage,
+  secondImage,
+  gridSize = 9,
+  pixelColor = '#1c1917',
+  animationStepDuration = 1200,
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  class:list={['pxt', className]}
+  data-grid={gridSize}
+  data-color={pixelColor}
+  data-duration={animationStepDuration}
+>
+  <div class="pxt__inner">
+    <img class="pxt__img pxt__first" src={firstImage} alt="Profile" draggable="false" />
+    <img class="pxt__img pxt__second" src={secondImage} alt="Profile alternate" draggable="false" />
+    <canvas class="pxt__canvas"></canvas>
+  </div>
+</div>
+
+<style>
+  .pxt {
+    width: 100%;
+    cursor: pointer;
+    outline: none;
+    border-radius: 1rem;
+  }
+
+  .pxt__inner {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px #e7e5e4;
+  }
+
+  .pxt__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .pxt__second {
+    opacity: 0;
+  }
+
+  .pxt__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  function init(wrapper: HTMLElement) {
+    const gridSize = parseInt(wrapper.dataset.grid || '9');
+    const pixelColor = wrapper.dataset.color || '#1c1917';
+    const totalDuration = parseInt(wrapper.dataset.duration || '1200');
+
+    const canvas = wrapper.querySelector<HTMLCanvasElement>('.pxt__canvas')!;
+    const ctx = canvas.getContext('2d')!;
+    const imgFirst = wrapper.querySelector<HTMLElement>('.pxt__first')!;
+    const imgSecond = wrapper.querySelector<HTMLElement>('.pxt__second')!;
+    const inner = wrapper.querySelector<HTMLElement>('.pxt__inner')!;
+
+    function syncCanvasSize() {
+      canvas.width = inner.offsetWidth;
+      canvas.height = inner.offsetHeight;
+    }
+    syncCanvasSize();
+    window.addEventListener('resize', syncCanvasSize);
+
+    const total = gridSize * gridSize;
+    // 0 = hidden, 1 = visible
+    const cellState = new Uint8Array(total);
+
+    function drawPixels() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const cw = canvas.width / gridSize;
+      const ch = canvas.height / gridSize;
+      ctx.fillStyle = pixelColor;
+      for (let i = 0; i < total; i++) {
+        if (cellState[i] === 1) {
+          const col = i % gridSize;
+          const row = Math.floor(i / gridSize);
+          ctx.fillRect(col * cw, row * ch, cw, ch);
+        }
+      }
+    }
+
+    function shuffle() {
+      return [...Array(total).keys()].sort(() => Math.random() - 0.5);
+    }
+
+    let timeouts: ReturnType<typeof setTimeout>[] = [];
+    let isActive = false;
+
+    function clearAll() {
+      timeouts.forEach(clearTimeout);
+      timeouts = [];
+      cellState.fill(0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function animate(goingIn: boolean) {
+      clearAll();
+
+      const STEPS = 12;
+      const half = totalDuration / 2;
+      const stepDelay = half / STEPS;
+      const batchSize = Math.ceil(total / STEPS);
+
+      const order1 = shuffle();
+      const order2 = shuffle();
+
+      // Phase 1: fill pixels onto canvas
+      for (let s = 0; s < STEPS; s++) {
+        const batch = order1.slice(s * batchSize, (s + 1) * batchSize);
+        timeouts.push(setTimeout(() => {
+          batch.forEach(i => { cellState[i] = 1; });
+          drawPixels();
+        }, s * stepDelay));
+      }
+
+      // Midpoint: swap images
+      timeouts.push(setTimeout(() => {
+        if (goingIn) {
+          imgFirst.style.opacity = '0';
+          imgSecond.style.opacity = '1';
+        } else {
+          imgSecond.style.opacity = '0';
+          imgFirst.style.opacity = '1';
+        }
+      }, half));
+
+      // Phase 2: clear pixels from canvas
+      for (let s = 0; s < STEPS; s++) {
+        const batch = order2.slice(s * batchSize, (s + 1) * batchSize);
+        timeouts.push(setTimeout(() => {
+          batch.forEach(i => { cellState[i] = 0; });
+          drawPixels();
+        }, half + s * stepDelay));
+      }
+    }
+
+    function handleEnter() {
+      if (!isActive) { isActive = true; animate(true); }
+    }
+    function handleLeave() {
+      if (isActive) { isActive = false; animate(false); }
+    }
+
+    const isTouch =
+      'ontouchstart' in window ||
+      navigator.maxTouchPoints > 0 ||
+      window.matchMedia('(pointer: coarse)').matches;
+
+    if (!isTouch) {
+      wrapper.addEventListener('mouseenter', handleEnter);
+      wrapper.addEventListener('mouseleave', handleLeave);
+    } else {
+      wrapper.addEventListener('click', () => {
+        isActive ? handleLeave() : handleEnter();
+      });
+    }
+  }
+
+  document.querySelectorAll<HTMLElement>('.pxt').forEach(init);
+</script>
