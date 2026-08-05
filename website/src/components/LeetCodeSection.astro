@@ -1,0 +1,125 @@
+---
+import Icon from './Icon.astro';
+import SectionHeader from './SectionHeader.astro';
+
+const LEETCODE_USERNAME = 'teomeehua';
+
+interface LeetCodeStats {
+  totalSolved: number;
+  easySolved: number;
+  mediumSolved: number;
+  hardSolved: number;
+}
+
+async function fetchLeetCodeStats(username: string): Promise<LeetCodeStats | null> {
+  try {
+    const res = await fetch('https://leetcode.com/graphql', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: `
+          query userProblemsSolved($username: String!) {
+            matchedUser(username: $username) {
+              submitStatsGlobal {
+                acSubmissionNum { difficulty count }
+              }
+            }
+          }
+        `,
+        variables: { username },
+      }),
+    });
+    if (!res.ok) return null;
+
+    const json = await res.json();
+    const counts: { difficulty: string; count: number }[] | undefined =
+      json?.data?.matchedUser?.submitStatsGlobal?.acSubmissionNum;
+    if (!counts) return null;
+
+    const find = (difficulty: string) => counts.find((c) => c.difficulty === difficulty)?.count ?? 0;
+
+    return {
+      totalSolved: find('All'),
+      easySolved: find('Easy'),
+      mediumSolved: find('Medium'),
+      hardSolved: find('Hard'),
+    };
+  } catch {
+    return null;
+  }
+}
+
+const stats = await fetchLeetCodeStats(LEETCODE_USERNAME);
+---
+
+<section id="leetcode" class="py-24 border-t border-stone-200">
+  <SectionHeader title="LeetCode" subtitle="Problem-solving practice, tracked at each deploy." data-section-header />
+
+  <div class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 mt-12 items-stretch">
+    <div data-lc-card class="p-8 border border-stone-200 rounded-xl bg-white flex flex-col items-center justify-center gap-2 md:w-56">
+      <span class="text-5xl font-heading font-semibold text-stone-900">{stats?.totalSolved ?? '—'}</span>
+      <span class="text-stone-500 text-sm uppercase tracking-wide">Problems Solved</span>
+    </div>
+
+    <div class="grid grid-cols-3 gap-6">
+      <div data-lc-card class="p-6 border border-stone-200 rounded-xl bg-white flex flex-col gap-2">
+        <span class="text-sm font-medium text-emerald-600">Easy</span>
+        <span class="text-2xl font-heading font-semibold text-stone-900">{stats?.easySolved ?? '—'}</span>
+      </div>
+      <div data-lc-card class="p-6 border border-stone-200 rounded-xl bg-white flex flex-col gap-2">
+        <span class="text-sm font-medium text-amber-600">Medium</span>
+        <span class="text-2xl font-heading font-semibold text-stone-900">{stats?.mediumSolved ?? '—'}</span>
+      </div>
+      <div data-lc-card class="p-6 border border-stone-200 rounded-xl bg-white flex flex-col gap-2">
+        <span class="text-sm font-medium text-rose-600">Hard</span>
+        <span class="text-2xl font-heading font-semibold text-stone-900">{stats?.hardSolved ?? '—'}</span>
+      </div>
+    </div>
+  </div>
+
+  {!stats && (
+    <p class="mt-4 text-sm text-stone-500">
+      Stats temporarily unavailable — check the profile directly below.
+    </p>
+  )}
+
+  <a
+    href={`https://leetcode.com/u/${LEETCODE_USERNAME}/`}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="inline-flex items-center gap-2 mt-8 px-6 py-3 border border-stone-300 rounded-md hover:bg-stone-200 transition-colors font-medium text-sm text-stone-900"
+  >
+    View Profile <Icon name="external-link" size={16} />
+  </a>
+</section>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  function initLeetCode() {
+    const section = document.getElementById('leetcode');
+    if (!section) return;
+
+    const header = section.querySelector('[data-section-header]');
+    const cards = Array.from(section.querySelectorAll<HTMLElement>('[data-lc-card]'));
+
+    gsap.set(header, { opacity: 0, y: 20 });
+    gsap.set(cards, { opacity: 0, y: 40 });
+
+    ScrollTrigger.create({
+      trigger: section,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+        tl
+          .to(header, { opacity: 1, y: 0, duration: 0.4 })
+          .to(cards, { opacity: 1, y: 0, duration: 0.5, stagger: 0.12 }, '-=0.1');
+      },
+    });
+  }
+
+  document.addEventListener('astro:page-load', initLeetCode);
+</script>

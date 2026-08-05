@@ -22,9 +22,12 @@
     "react-dom": "^19.2.5"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
     "@tailwindcss/vite": "^4.2.2",
     "autoprefixer": "^10.4.27",
     "postcss": "^8.5.9",
-    "tailwindcss": "^4.2.2"
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5",
+    "ws": "^8.21.0"
   }
 }

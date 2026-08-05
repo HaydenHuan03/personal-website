@@ -2,11 +2,12 @@
 interface Props {
   title: string;
   subtitle: string;
+  'data-section-header'?: boolean;
 }
-const { title, subtitle } = Astro.props;
+const { title, subtitle, 'data-section-header': dataAttr } = Astro.props;
 ---
 
-<div>
+<div data-section-header={dataAttr ? '' : undefined}>
   <h2 class="text-3xl font-heading font-semibold text-stone-900 mb-2">{title}</h2>
   <p class="text-stone-500 font-light">{subtitle}</p>
 </div>

@@ -6,11 +6,12 @@ import { techIconMap } from '../utils/techIcons';
 ---
 
 <section id="projects" class="py-24 border-t border-stone-200">
-  <SectionHeader title="Selected Work" subtitle="Architectural highlights and engineering challenges." />
+  <SectionHeader title="Selected Work" subtitle="Architectural highlights and engineering challenges." data-section-header />
 
   <div class="space-y-4 mt-12">
     {projects.map((project) => (
       <a
+        data-project-row
         href={`/projects/${project.slug}`}
         class="group flex flex-col md:flex-row gap-8 items-start p-8 rounded-xl cursor-pointer bg-white border border-stone-200 hover:border-stone-300 hover:shadow-sm transition-all no-underline"
       >
@@ -44,3 +45,42 @@ import { techIconMap } from '../utils/techIcons';
     ))}
   </div>
 </section>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  function initProjects() {
+    const section = document.getElementById('projects');
+    if (!section) return;
+
+    const header = section.querySelector('[data-section-header]');
+    const rows = Array.from(section.querySelectorAll<HTMLElement>('[data-project-row]'));
+
+    gsap.set(header, { opacity: 0, y: 20 });
+    gsap.set(rows, { opacity: 0, x: -32, y: 16 });
+
+    ScrollTrigger.create({
+      trigger: header,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to(header, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' });
+      },
+    });
+
+    rows.forEach((row) => {
+      ScrollTrigger.create({
+        trigger: row,
+        start: 'top 85%',
+        once: true,
+        onEnter: () => {
+          gsap.to(row, { opacity: 1, x: 0, y: 0, duration: 0.55, ease: 'power2.out' });
+        },
+      });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initProjects);
+</script>
